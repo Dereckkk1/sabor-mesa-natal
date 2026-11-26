@@ -451,12 +451,18 @@
         texto: fmtQtd(l.item, l.qtd), subtotal: l.subtotal,
       })),
     };
+    const body = JSON.stringify(payload);
+    // Dois caminhos para garantir no celular (o WhatsApp abre por cima do navegador).
+    // A planilha ignora o segundo, porque o código do pedido é o mesmo.
     try {
       fetch(C.planilhaUrl, {
         method: 'POST', mode: 'no-cors', keepalive: true,
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify(payload),
+        body,
       }).catch(() => {});
+    } catch (e) { /* segue */ }
+    try {
+      if (navigator.sendBeacon) navigator.sendBeacon(C.planilhaUrl, new Blob([body], { type: 'text/plain;charset=utf-8' }));
     } catch (e) { /* sem planilha, o WhatsApp ainda leva o pedido */ }
   }
 

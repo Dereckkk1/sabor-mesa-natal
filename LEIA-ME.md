@@ -65,3 +65,5 @@ gh api -X POST repos/{owner}/sabor-mesa-natal/pages -f "source[branch]=main" -f 
 ```
 
 O site fica em `https://<usuario>.github.io/sabor-mesa-natal/`. Para atualizar, faça commit e push e o Pages publica sozinho.
+
+> O GitHub Pages guarda os arquivos em cache por até 10 minutos. Quando mudar o `config.js`, troque também o número `?v=` nas linhas do `index.html` que carregam `styles.css`, `config.js` e `app.js`. Assim quem abrir o site depois disso já pega a versão nova.
