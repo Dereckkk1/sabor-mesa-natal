@@ -55,7 +55,7 @@ Para testar, abra a URL `/exec` no navegador. Ela deve mostrar `ok`. Depois faç
 
 > Se o `Code.gs` for alterado depois, publique de novo em **Implantar → Gerenciar implantações → editar → Nova versão**. Assim a URL continua a mesma.
 
-> Pedidos que entraram antes da correção das fórmulas (com vírgula no lugar de ponto e vírgula) são consertados rodando a função **consertarFormulas** uma vez.
+> O script não usa fórmulas na planilha. Ele mesmo calcula o status, a Produção e a Agenda. Elas se atualizam sozinhas quando chega pedido ou quando o Status muda. Também dá para atualizar pelo menu **Pedidos → Atualizar Produção e Agenda**. Para conferir se a versão certa está no ar, abra a URL `/exec`: deve aparecer `v3-sem-formulas`.
 
 ## Publicar no GitHub Pages
 
