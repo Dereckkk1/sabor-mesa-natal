@@ -105,23 +105,26 @@ function doPost(e) {
     const dataEvento = data_(d.data);
     const itens = Array.isArray(d.itens) ? d.itens.slice(0, 60) : [];
     const pratos = itens.map((i) => `${txt_(i.texto, 60)} · ${txt_(i.nome, 160)}`).join('\n');
-    const tel = String(d.whatsapp || '').replace(/\D/g, '').slice(0, 13);
-    const telLink = tel ? `=HYPERLINK("https://wa.me/${tel.length <= 11 ? '55' + tel : tel}","${txt_(d.whatsapp, 30).replace(/"/g, '')}")` : '';
-
-    ped.appendRow([
-      new Date(), codigo, 'Novo', txt_(d.nome, 120), telLink, dataEvento, txt_(d.periodo, 30),
+    // Fórmulas vão sempre por setFormula(s): ele aceita a sintaxe em inglês (vírgula)
+    // em qualquer idioma de planilha. Gravar "=..." como valor faz a planilha em
+    // português exigir ponto e vírgula e a fórmula quebra.
+    const linhaPed = ped.getLastRow() + 1;
+    ped.getRange(linhaPed, 1, 1, CAB_PEDIDOS.length).setValues([[
+      new Date(), codigo, 'Novo', txt_(d.nome, 120), txt_(d.whatsapp, 30), dataEvento, txt_(d.periodo, 30),
       txt_(d.tipo, 20), txt_(d.endereco, 400), txt_(d.pagamento, 40), pratos, num_(d.total),
       txt_(d.obs, 1000), txt_(d.pessoas, 80),
-    ]);
+    ]]);
+    const link = formulaWhats_(d.whatsapp);
+    if (link) ped.getRange(linhaPed, 5).setFormula(link);
 
     if (itens.length) {
       const inicio = itensAba.getLastRow() + 1;
-      const linhas = itens.map((i, k) => [
+      const linhas = itens.map((i) => [
         codigo, dataEvento, txt_(d.periodo, 30), txt_(i.categoria, 60), txt_(i.nome, 160),
         num_(i.qtd), txt_(i.unidade, 30), num_(i.subtotal),
-        `=IFERROR(VLOOKUP(A${inicio + k},Pedidos!B:C,2,FALSE),"")`,
       ]);
       itensAba.getRange(inicio, 1, linhas.length, linhas[0].length).setValues(linhas);
+      itensAba.getRange(inicio, 9, linhas.length, 1).setFormulas(linhas.map((_, k) => [formulaStatus_(inicio + k)]));
     }
     return json_({ ok: true });
   } catch (err) {
@@ -136,7 +139,52 @@ function doGet() {
   return ContentService.createTextOutput('ok — Pedidos Sabor à Mesa');
 }
 
+/**
+ * Rode uma vez para consertar os pedidos que entraram com a fórmula quebrada
+ * (link do WhatsApp na aba Pedidos e status na aba Itens). Não apaga nada.
+ */
+function consertarFormulas() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ped = ss.getSheetByName(ABA_PEDIDOS);
+  const itens = ss.getSheetByName(ABA_ITENS);
+
+  if (ped && ped.getLastRow() > 1) {
+    const n = ped.getLastRow() - 1;
+    const range = ped.getRange(2, 5, n, 1);
+    const formulas = range.getFormulas();
+    const valores = range.getDisplayValues();
+    for (let k = 0; k < n; k++) {
+      const atual = formulas[k][0] || valores[k][0];
+      // pega o número do link wa.me; se não tiver link, usa o próprio texto da célula
+      const numero = (/wa\.me\/(\d+)/.exec(atual) || [])[1] || atual;
+      const nova = formulaWhats_(numero);
+      if (nova) ped.getRange(k + 2, 5).setFormula(nova);
+    }
+  }
+
+  if (itens && itens.getLastRow() > 1) {
+    const n = itens.getLastRow() - 1;
+    const f = [];
+    for (let k = 0; k < n; k++) f.push([formulaStatus_(k + 2)]);
+    itens.getRange(2, 9, n, 1).setFormulas(f);
+  }
+}
+
 /* ---------------- auxiliares ---------------- */
+function formulaWhats_(whats) {
+  let tel = String(whats || '').replace(/\D/g, '');
+  if (tel.startsWith('55') && tel.length > 11) tel = tel.slice(2);
+  tel = tel.slice(0, 11);
+  if (tel.length < 10) return '';
+  const rotulo = tel.length === 11
+    ? `(${tel.slice(0, 2)}) ${tel.slice(2, 7)}-${tel.slice(7)}`
+    : `(${tel.slice(0, 2)}) ${tel.slice(2, 6)}-${tel.slice(6)}`;
+  return `=HYPERLINK("https://wa.me/55${tel}","${rotulo}")`;
+}
+function formulaStatus_(linha) {
+  return `=IFERROR(VLOOKUP(A${linha},Pedidos!B:C,2,FALSE),"")`;
+}
+
 function aba_(ss, nome, cab) {
   const s = ss.getSheetByName(nome) || ss.insertSheet(nome);
   s.getRange(1, 1, 1, cab.length).setValues([cab]).setFontWeight('bold').setBackground('#7a0e19').setFontColor('#ffffff');

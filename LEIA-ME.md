@@ -55,6 +55,8 @@ Para testar, abra a URL `/exec` no navegador. Ela deve mostrar `ok`. Depois faç
 
 > Se o `Code.gs` for alterado depois, publique de novo em **Implantar → Gerenciar implantações → editar → Nova versão**. Assim a URL continua a mesma.
 
+> Pedidos que entraram antes da correção das fórmulas (com vírgula no lugar de ponto e vírgula) são consertados rodando a função **consertarFormulas** uma vez.
+
 ## Publicar no GitHub Pages
 
 ```powershell
