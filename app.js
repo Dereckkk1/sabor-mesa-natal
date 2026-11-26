@@ -566,7 +566,7 @@
 
   /* ---------------- Marca / extras ---------------- */
   function setupBrand() {
-    if (C.marca.logo) $('#logo').innerHTML = `<img src="${esc(C.marca.logo)}" alt="${esc(`${C.marca.nome} — ${C.marca.sub}`)}">`;
+    if (C.marca.logo && C.marca.logo !== $('#logo img')?.getAttribute('src')) $('#logo').innerHTML = `<img src="${esc(C.marca.logo)}" alt="${esc(`${C.marca.nome} — ${C.marca.sub}`)}">`;
     if (C.prazoEncomenda) {
       const r = dataRotulo(C.prazoEncomenda);
       $('#prazo').innerHTML = `Encomendas até <strong>${esc(r.curto)}</strong>`;

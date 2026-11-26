@@ -354,7 +354,8 @@ p.field__error[hidden] { display: none; }
 }
 .bar.is-on { transform: none; }
 .bar[hidden] { display: none; }
-.bar__info { display: flex; flex-direction: column; line-height: 1.15; }
+.bar__info { display: flex; flex-direction: column; line-height: 1.15; min-width: 0; }
+.bar .btn { flex: none; white-space: nowrap; }
 .bar__label { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); }
 .bar__info strong { font-size: 19px; color: #fff; font-variant-numeric: tabular-nums; }
 @media (min-width: 960px) { .bar { display: none; } }

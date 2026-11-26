@@ -9,7 +9,7 @@ window.SABOR = {
     nome: 'Sabor à Mesa',
     sub: 'Buffet & Eventos',
     // Para usar o logo oficial: salve o arquivo em assets/logo.png e troque null por 'assets/logo.png'
-    logo: null,
+    logo: 'assets/logo.png',
   },
 
   // WhatsApp que recebe os pedidos (55 + DDD + número, só números)
