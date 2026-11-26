@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cardápio de Natal · Sabor à Mesa</title>
+  <meta name="description" content="Calcule as quantidades da sua ceia de Natal e faça sua encomenda com a Sabor à Mesa Buffet & Eventos.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Cardápio de Natal · Sabor à Mesa">
+  <meta property="og:description" content="Calcule quanto servir na sua ceia e encomende pelo WhatsApp.">
+  <meta name="theme-color" content="#2e0a0f">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Great+Vibes&family=Mulish:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#calculadora">Pular para a calculadora</a>
+
+  <header class="hero" id="topo">
+    <div class="hero__lights" aria-hidden="true"></div>
+    <div class="wrap hero__inner">
+      <div class="logo" id="logo">
+        <svg viewBox="0 0 320 170" role="img" aria-label="Sabor à Mesa — Buffet &amp; Eventos">
+          <defs>
+            <radialGradient id="lg-red" cx="50%" cy="30%" r="75%">
+              <stop offset="0" stop-color="#cf2536"/>
+              <stop offset="1" stop-color="#7a0e19"/>
+            </radialGradient>
+          </defs>
+          <ellipse cx="160" cy="85" rx="157" ry="82" fill="#fbf4e6"/>
+          <ellipse cx="160" cy="85" rx="150" ry="75" fill="url(#lg-red)"/>
+          <path d="M160 116 C122 92 100 66 120 46 C136 31 154 38 160 54 C166 38 184 31 200 46 C220 66 198 92 160 116 Z" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="3"/>
+          <text x="160" y="88" text-anchor="middle" font-family="'Cormorant Garamond', Georgia, serif" font-weight="700" font-size="47" fill="#fff">Sabor à Mesa</text>
+          <line x1="84" y1="111" x2="108" y2="111" stroke="#fff" stroke-opacity=".8" stroke-width="1.2"/>
+          <line x1="212" y1="111" x2="236" y2="111" stroke="#fff" stroke-opacity=".8" stroke-width="1.2"/>
+          <text x="160" y="116" text-anchor="middle" font-family="Mulish, Arial, sans-serif" font-weight="700" font-size="14" letter-spacing="1" fill="#fff">Buffet &amp; Eventos</text>
+          <path d="M70 137 Q165 160 262 126" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <p class="hero__kicker">Cardápio de</p>
+      <h1 class="hero__title">Natal</h1>
+      <p class="hero__tagline">Sabor e carinho para celebrar o que realmente importa!</p>
+      <div class="hero__ctas">
+        <a class="btn btn--gold" href="#calculadora">Calcular minha ceia</a>
+        <a class="btn btn--ghost" href="#pedido">Fazer encomenda</a>
+      </div>
+      <p class="hero__prazo" id="prazo" hidden></p>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ CALCULADORA ============ -->
+    <section class="section" id="calculadora" aria-labelledby="calc-title">
+      <div class="wrap">
+        <div class="section__head">
+          <span class="eyebrow">Orçamento sem compromisso</span>
+          <h2 id="calc-title">Quanto preciso para a minha ceia?</h2>
+          <p>Diga quantas pessoas vão estar à mesa e escolha os pratos. A gente calcula as quantidades e o valor.</p>
+        </div>
+
+        <div class="calc">
+          <div class="calc__main">
+            <div class="paper people">
+              <h3 class="people__title">Quem vem para a ceia?</h3>
+              <div class="people__row">
+                <div class="field-num">
+                  <span class="field-num__label" id="lbl-adultos">Adultos</span>
+                  <div class="stepper" data-stepper="adultos" data-min="1" data-max="200">
+                    <button type="button" data-dir="-1" aria-label="Menos adultos">−</button>
+                    <output aria-labelledby="lbl-adultos" id="out-adultos">4</output>
+                    <button type="button" data-dir="1" aria-label="Mais adultos">+</button>
+                  </div>
+                </div>
+                <div class="field-num">
+                  <span class="field-num__label" id="lbl-criancas">Crianças <small>(até 10 anos)</small></span>
+                  <div class="stepper" data-stepper="criancas" data-min="0" data-max="100">
+                    <button type="button" data-dir="-1" aria-label="Menos crianças">−</button>
+                    <output aria-labelledby="lbl-criancas" id="out-criancas">0</output>
+                    <button type="button" data-dir="1" aria-label="Mais crianças">+</button>
+                  </div>
+                </div>
+                <fieldset class="field-num apetite">
+                  <legend class="field-num__label">Apetite da turma</legend>
+                  <div class="segmented" id="apetite"></div>
+                </fieldset>
+              </div>
+            </div>
+
+            <p class="calc__hint">Toque nos pratos que você quer servir:</p>
+            <div class="menu" id="calc-menu"></div>
+          </div>
+
+          <aside class="calc__side" aria-label="Resultado da calculadora">
+            <div class="paper result" id="calc-result" aria-live="polite"></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ PEDIDO ============ -->
+    <section class="section section--order" id="pedido" aria-labelledby="order-title">
+      <div class="wrap">
+        <div class="section__head">
+          <span class="eyebrow">Encomenda</span>
+          <h2 id="order-title">Faça sua encomenda</h2>
+          <p>Preencha os dados e envie. O pedido chega pronto no WhatsApp da Sabor à Mesa, que confirma tudo com você por lá.</p>
+        </div>
+
+        <form id="order-form" class="order" novalidate>
+          <div class="order__main">
+            <fieldset class="paper block" id="blk-itens">
+              <legend class="block__title"><span class="block__n">1</span> Seus pratos</legend>
+              <div id="cart"></div>
+              <label class="add-item">
+                <span class="sr-only">Adicionar prato</span>
+                <select id="add-item"></select>
+              </label>
+              <p class="field__error" id="err-itens" hidden>Adicione pelo menos um prato.</p>
+            </fieldset>
+
+            <fieldset class="paper block">
+              <legend class="block__title"><span class="block__n">2</span> Seus dados</legend>
+              <div class="grid-2">
+                <label class="field">
+                  <span class="field__label">Nome completo</span>
+                  <input type="text" name="nome" id="f-nome" autocomplete="name" required>
+                  <span class="field__error">Informe seu nome.</span>
+                </label>
+                <label class="field">
+                  <span class="field__label">WhatsApp</span>
+                  <input type="tel" name="whatsapp" id="f-whats" autocomplete="tel-national" inputmode="tel" placeholder="(47) 99999-9999" required>
+                  <span class="field__error">Informe um WhatsApp com DDD.</span>
+                </label>
+              </div>
+            </fieldset>
+
+            <fieldset class="paper block">
+              <legend class="block__title"><span class="block__n">3</span> Data da ceia</legend>
+              <div class="choices" id="f-datas" role="radiogroup" aria-label="Data"></div>
+              <label class="field" id="outra-data-wrap" hidden>
+                <span class="field__label">Qual data?</span>
+                <input type="date" name="outraData" id="f-outra-data">
+                <span class="field__error">Escolha a data.</span>
+              </label>
+              <p class="field__error" id="err-data" hidden>Escolha a data.</p>
+              <div class="sub-group">
+                <span class="field__label">Período</span>
+                <div class="choices choices--inline" id="f-periodos" role="radiogroup" aria-label="Período"></div>
+                <p class="field__error" id="err-periodo" hidden>Escolha o período.</p>
+              </div>
+            </fieldset>
+
+            <fieldset class="paper block">
+              <legend class="block__title"><span class="block__n">4</span> Retirada ou entrega</legend>
+              <div class="choices choices--inline" role="radiogroup" aria-label="Retirada ou entrega" id="f-tipo">
+                <label class="choice"><input type="radio" name="tipo" value="Retirada"><span>Vou retirar</span></label>
+                <label class="choice" id="choice-entrega"><input type="radio" name="tipo" value="Entrega"><span>Quero entrega</span></label>
+              </div>
+              <p class="field__error" id="err-tipo" hidden>Escolha retirada ou entrega.</p>
+              <p class="note" id="tipo-note"></p>
+              <div class="address" id="address" hidden>
+                <div class="grid-2">
+                  <label class="field field--wide">
+                    <span class="field__label">Rua e número</span>
+                    <input type="text" name="rua" id="f-rua" autocomplete="address-line1">
+                    <span class="field__error">Informe rua e número.</span>
+                  </label>
+                  <label class="field">
+                    <span class="field__label">Bairro</span>
+                    <input type="text" name="bairro" id="f-bairro">
+                    <span class="field__error">Informe o bairro.</span>
+                  </label>
+                  <label class="field">
+                    <span class="field__label">Cidade</span>
+                    <input type="text" name="cidade" id="f-cidade" autocomplete="address-level2">
+                    <span class="field__error">Informe a cidade.</span>
+                  </label>
+                  <label class="field field--wide">
+                    <span class="field__label">Complemento / ponto de referência <small>(opcional)</small></span>
+                    <input type="text" name="complemento" id="f-complemento" autocomplete="address-line2">
+                  </label>
+                </div>
+              </div>
+            </fieldset>
+
+            <fieldset class="paper block">
+              <legend class="block__title"><span class="block__n">5</span> Forma de pagamento</legend>
+              <div class="choices choices--inline" id="f-pagamentos" role="radiogroup" aria-label="Forma de pagamento"></div>
+              <p class="field__error" id="err-pagamento" hidden>Escolha a forma de pagamento.</p>
+              <p class="note" id="pagamento-note" hidden></p>
+            </fieldset>
+
+            <fieldset class="paper block">
+              <legend class="block__title"><span class="block__n">6</span> Observações <small>(opcional)</small></legend>
+              <label class="field">
+                <span class="sr-only">Observações</span>
+                <textarea name="obs" id="f-obs" rows="3" placeholder="Alergias, horário preferido, algum pedido especial…"></textarea>
+              </label>
+            </fieldset>
+          </div>
+
+          <aside class="order__side">
+            <div class="paper summary" id="summary"></div>
+          </aside>
+        </form>
+
+        <div class="paper done" id="order-done" hidden tabindex="-1">
+          <div class="done__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12.5l4.2 4.2L19 7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <h3>Seu pedido está pronto para envio</h3>
+          <p>Abrimos o WhatsApp com a mensagem do pedido <strong id="done-code"></strong>. <strong>Confira e toque em enviar.</strong> A encomenda fica confirmada quando a Sabor à Mesa responder.</p>
+          <div class="done__ctas">
+            <a class="btn btn--wa" id="done-wa" href="#" target="_blank" rel="noopener">Abrir o WhatsApp de novo</a>
+            <button type="button" class="btn btn--link" id="done-new">Fazer outro pedido</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer__inner">
+      <p class="footer__brand"><span class="footer__script">Sabor à Mesa</span><span class="footer__sub">Buffet &amp; Eventos</span></p>
+      <div class="footer__links">
+        <a id="ft-wa" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 0 0-7.8 13.5L3 21l4.6-1.2A9 9 0 1 0 12 3z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.6-2-1-1 .9a5 5 0 0 1-2.8-2.8l.9-1-1-2z" fill="currentColor"/></svg>
+          <span id="ft-wa-txt"></span>
+        </a>
+        <a id="ft-ig" href="#" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.1" fill="currentColor"/></svg>
+          @sabor.mesa
+        </a>
+      </div>
+      <p class="footer__fine">Valores e quantidades da calculadora são estimativas. A confirmação final do pedido é feita pelo WhatsApp.</p>
+    </div>
+  </footer>
+
+  <div class="bar" id="bar" hidden>
+    <div class="bar__info"><span class="bar__label" id="bar-label">Total estimado</span><strong id="bar-total">R$ 0,00</strong></div>
+    <a class="btn btn--gold btn--sm" id="bar-btn" href="#calc-result">Ver quantidades</a>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
