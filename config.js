@@ -18,7 +18,7 @@ window.SABOR = {
   instagram: 'https://www.instagram.com/sabor.mesa/',
 
   // URL do Apps Script da planilha (veja LEIA-ME.md). Vazio = pedidos vão só pelo WhatsApp.
-  planilhaUrl: 'https://script.google.com/macros/s/AKfycbx4l4L9AKMWZbXdACOakGj_YrN4UQYA4DefV_oFNAGnQp4F4WS6aQY_UPKdz6hYZC6Kvw/exec',
+  planilhaUrl: 'https://script.google.com/macros/s/AKfycbzfDh4r3_yro_yjA-OeMY7wude46UXji7iMSfBD51raihNAxtsQiuodT1uADWspeKHymA/exec',
 
   // Prazo para encomendas (AAAA-MM-DD). null = não mostra prazo.
   prazoEncomenda: null,
