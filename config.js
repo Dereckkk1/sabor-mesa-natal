@@ -47,23 +47,26 @@ window.SABOR = {
   },
 
   /* ------------------------------------------------------------------------
-     Regras da calculadora
+     Regras da calculadora (passadas pela Sabor à Mesa)
+     - CARNES E MASSAS: um total de gramas por pessoa, conforme o apetite
+       (leve 250 g · normal 350 g · bastante 500 g), dividido igualmente
+       entre todas as carnes e massas escolhidas.
+       Itens vendidos por unidade usam `rendeG` = quantos gramas de porção
+       1 unidade rende.
+     - ACOMPANHAMENTOS: 100 g por pessoa de cada acompanhamento escolhido.
+     - Entradas, molhos e sobremesas: `serve` = pessoas que 1 embalagem serve.
      - Criança conta como `pesoCrianca` de um adulto.
-     - Itens do mesmo "grupo" dividem a porção (ex.: escolheu 2 carnes,
-       cada uma faz metade).
-     - tipo 'kg'     → gPorPessoa = gramas por pessoa quando é o único do grupo
-       tipo 'un'     → serve = pessoas que 1 unidade serve sozinha
-       tipo 'pacote' → serve = pessoas que 1 embalagem serve sozinha
      ------------------------------------------------------------------------ */
   calculadora: {
     adultosPadrao: 4,
     criancasPadrao: 0,
     pesoCrianca: 0.5,
     passoKg: 0.5, // itens por kg são arredondados para cima de 0,5 em 0,5 kg
+    principal: ['carnes', 'massas'], // categorias que dividem a porção principal
     apetite: {
-      leve: { nome: 'Leve', fator: 0.85 },
-      normal: { nome: 'Normal', fator: 1 },
-      farto: { nome: 'Bem servido', fator: 1.2 },
+      leve: { nome: 'Leve', gramas: 250 },
+      normal: { nome: 'Normal', gramas: 350 },
+      farto: { nome: 'Bastante', gramas: 500 },
     },
   },
 
@@ -79,47 +82,44 @@ window.SABOR = {
     },
     {
       id: 'carnes', nome: 'Carnes', icone: 'cloche', grupo: 'carnes',
-      dica: 'A quantidade de carne é dividida entre as opções escolhidas.',
+      dica: 'Carnes e massas dividem a porção principal (350 g por pessoa no apetite normal).',
       itens: [
-        { id: 'chester', nome: 'Chester Recheado e Decorado', preco: 365, tipo: 'un', serve: 10 },
-        { id: 'peru', nome: 'Peru Recheado e Decorado', preco: 145, tipo: 'kg', gPorPessoa: 450, obs: 'Peru é peça inteira: o peso final depende da ave.' },
-        { id: 'frango', nome: 'Frango Recheado e Decorado', preco: 155, tipo: 'un', serve: 5 },
-        { id: 'costelinha', nome: 'Costelinha Suína Barbecue', preco: 195, tipo: 'kg', gPorPessoa: 500 },
-        { id: 'paleta', nome: 'Paleta Suína com Mostarda e Mel', preco: 205, tipo: 'kg', gPorPessoa: 400 },
-        { id: 'alcatra', nome: 'Alcatra ao Molho Madeira', preco: 235, tipo: 'kg', gPorPessoa: 350 },
-        { id: 'mignon', nome: 'Mignon ao 4 Queijos', preco: 440, tipo: 'kg', gPorPessoa: 300 },
-        { id: 'lombinho', nome: 'Lombinho Recheado com Bacon, Pupunha e Queijo, ao Molho de Frutas Vermelhas', preco: 250, tipo: 'kg', gPorPessoa: 350 },
-        { id: 'salmao', nome: 'Salmão com Camarão e Alcaparras', preco: 420, tipo: 'kg', gPorPessoa: 300 },
-        { id: 'tender', nome: 'Tender Cravejado', preco: 195, tipo: 'un', serve: 12 },
+        { id: 'chester', nome: 'Chester Recheado e Decorado', preco: 365, tipo: 'un', rendeG: 3500 },
+        { id: 'peru', nome: 'Peru Recheado e Decorado', preco: 145, tipo: 'kg', obs: 'Peru é peça inteira: o peso final depende da ave.' },
+        { id: 'frango', nome: 'Frango Recheado e Decorado', preco: 155, tipo: 'un', rendeG: 1750 },
+        { id: 'costelinha', nome: 'Costelinha Suína Barbecue', preco: 195, tipo: 'kg' },
+        { id: 'paleta', nome: 'Paleta Suína com Mostarda e Mel', preco: 205, tipo: 'kg' },
+        { id: 'alcatra', nome: 'Alcatra ao Molho Madeira', preco: 235, tipo: 'kg' },
+        { id: 'mignon', nome: 'Mignon ao 4 Queijos', preco: 440, tipo: 'kg' },
+        { id: 'lombinho', nome: 'Lombinho Recheado com Bacon, Pupunha e Queijo, ao Molho de Frutas Vermelhas', preco: 250, tipo: 'kg' },
+        { id: 'salmao', nome: 'Salmão com Camarão e Alcaparras', preco: 420, tipo: 'kg' },
+        { id: 'tender', nome: 'Tender Cravejado', preco: 195, tipo: 'un', rendeG: 4200 },
       ],
     },
     {
       id: 'acompanhamentos', nome: 'Acompanhamentos', icone: 'tigela',
-      dica: 'Arroz com arroz e farofa com farofa dividem a porção.',
-      // Muitos acompanhamentos ao mesmo tempo → cada um sai um pouco menor
-      reducaoVariedade: [[4, 0.85], [6, 0.75]],
+      dica: '100 g por pessoa de cada acompanhamento.',
       itens: [
-        { id: 'arroz-grega', nome: 'Arroz à Grega', preco: 125, tipo: 'kg', gPorPessoa: 130, grupo: 'arroz' },
-        { id: 'arroz-amendoas', nome: 'Arroz com Amêndoas', preco: 115, tipo: 'kg', gPorPessoa: 130, grupo: 'arroz' },
+        { id: 'arroz-grega', nome: 'Arroz à Grega', preco: 125, tipo: 'kg', gPorPessoa: 100 },
+        { id: 'arroz-amendoas', nome: 'Arroz com Amêndoas', preco: 115, tipo: 'kg', gPorPessoa: 100 },
         { id: 'salpicao', nome: 'Salpicão', preco: 165, tipo: 'kg', gPorPessoa: 100 },
         { id: 'maionese', nome: 'Maionese de Batatas', preco: 60, tipo: 'kg', gPorPessoa: 100 },
-        { id: 'farofa-bacon', nome: 'Farofa de Bacon', preco: 90, tipo: 'kg', gPorPessoa: 60, grupo: 'farofa' },
-        { id: 'farofa-agridoce', nome: 'Farofa de Natal Agridoce', preco: 120, tipo: 'kg', gPorPessoa: 60, grupo: 'farofa' },
+        { id: 'farofa-bacon', nome: 'Farofa de Bacon', preco: 90, tipo: 'kg', gPorPessoa: 100 },
+        { id: 'farofa-agridoce', nome: 'Farofa de Natal Agridoce', preco: 120, tipo: 'kg', gPorPessoa: 100 },
         { id: 'legumes', nome: 'Legumes Salteados', preco: 125, tipo: 'kg', gPorPessoa: 100 },
         { id: 'empadao', nome: 'Empadão de Frango, Palmito e Requeijão', preco: 130, tipo: 'un', emb: '10 fatias', serve: 10 },
       ],
     },
     {
       id: 'massas', nome: 'Massas', icone: 'cloche', grupo: 'massas',
-      dica: 'Com carne na ceia, a massa entra como acompanhamento (meia porção).',
-      fatorComCarnes: 0.5,
+      dica: 'Entram na mesma porção principal das carnes.',
       itens: [
-        { id: 'espaguete', nome: 'Espaguete', preco: 40, tipo: 'kg', gPorPessoa: 200 },
-        { id: 'penne', nome: 'Penne', preco: 40, tipo: 'kg', gPorPessoa: 200 },
-        { id: 'lasanha-frango', nome: 'Lasanha de Frango', preco: 85, tipo: 'kg', gPorPessoa: 250 },
-        { id: 'lasanha-bolonhesa', nome: 'Lasanha à Bolonhesa', preco: 105, tipo: 'kg', gPorPessoa: 250 },
-        { id: 'rondelle', nome: 'Rondelle Queijo e Peito de Peru Defumado ao Molho 4 Queijos', preco: 158, tipo: 'kg', gPorPessoa: 250 },
-        { id: 'lasanha-funghi', nome: 'Lasanha ao Molho Funghi', preco: 125, tipo: 'kg', gPorPessoa: 250 },
+        { id: 'espaguete', nome: 'Espaguete', preco: 40, tipo: 'kg' },
+        { id: 'penne', nome: 'Penne', preco: 40, tipo: 'kg' },
+        { id: 'lasanha-frango', nome: 'Lasanha de Frango', preco: 85, tipo: 'kg' },
+        { id: 'lasanha-bolonhesa', nome: 'Lasanha à Bolonhesa', preco: 105, tipo: 'kg' },
+        { id: 'rondelle', nome: 'Rondelle Queijo e Peito de Peru Defumado ao Molho 4 Queijos', preco: 158, tipo: 'kg' },
+        { id: 'lasanha-funghi', nome: 'Lasanha ao Molho Funghi', preco: 125, tipo: 'kg' },
       ],
     },
     {

@@ -107,37 +107,40 @@
 
   function calcular() {
     const k = C.calculadora;
-    const P = (state.adultos + state.criancas * k.pesoCrianca) * k.apetite[state.apetite].fator;
+    const P = state.adultos + state.criancas * k.pesoCrianca;
+    const gPrincipal = k.apetite[state.apetite].gramas;
     const escolhidos = ITEMS.filter((i) => state.picks.has(i.id));
     const notas = [];
     if (!escolhidos.length) return { linhas: [], total: 0, notas };
 
-    const temCarne = escolhidos.some((i) => i.categoria === 'carnes');
+    const ehPrincipal = (i) => (k.principal || []).includes(i.categoria);
+    const principais = escolhidos.filter(ehPrincipal);
     const porGrupo = {};
-    const gruposPorCat = {};
-    escolhidos.forEach((i) => {
-      (porGrupo[i.grupo] ||= []).push(i);
-      (gruposPorCat[i.categoria] ||= new Set()).add(i.grupo);
-    });
+    escolhidos.forEach((i) => { (porGrupo[i.grupo] ||= []).push(i); });
+    const kgPara = (gramas, i) => {
+      const st = passo(i);
+      return round2(Math.max(st, Math.ceil(gramas / 1000 / st - 1e-9) * st));
+    };
 
     const linhas = escolhidos.map((i) => {
-      const cat = CATS[i.categoria];
-      let fator = 1;
-      (cat.reducaoVariedade || []).forEach(([min, f]) => { if (gruposPorCat[i.categoria].size >= min) fator = f; });
-      if (cat.fatorComCarnes && temCarne) fator *= cat.fatorComCarnes;
-      const pessoas = (P / porGrupo[i.grupo].length) * fator;
       let qtd;
-      if (i.tipo === 'kg') {
-        const st = passo(i);
-        qtd = round2(Math.max(st, Math.ceil((pessoas * i.gPorPessoa) / 1000 / st - 1e-9) * st));
+      if (ehPrincipal(i)) {
+        // Carnes + massas: porção principal dividida igualmente entre todas as escolhidas
+        const gramas = (P * gPrincipal) / principais.length;
+        qtd = i.tipo === 'kg' ? kgPara(gramas, i) : Math.max(1, Math.ceil(gramas / i.rendeG - 1e-9));
       } else {
-        qtd = Math.max(1, Math.ceil(pessoas / i.serve - 1e-9));
+        const pessoas = P / porGrupo[i.grupo].length;
+        qtd = i.tipo === 'kg' ? kgPara(pessoas * i.gPorPessoa, i) : Math.max(1, Math.ceil(pessoas / i.serve - 1e-9));
       }
       if (i.obs) notas.push(i.obs);
       return { item: i, qtd, subtotal: round2(qtd * i.preco) };
     });
 
-    if (temCarne && escolhidos.some((i) => i.categoria === 'massas')) notas.push('Com carne na ceia, as massas foram calculadas como acompanhamento.');
+    if (principais.length) {
+      const nome = k.apetite[state.apetite].nome.toLowerCase();
+      notas.push(`Carnes e massas: ${gPrincipal} g por pessoa (apetite ${nome}), divididos entre ${principais.length === 1 ? 'o prato escolhido' : `os ${principais.length} pratos escolhidos`}.`);
+    }
+    if (escolhidos.some((i) => i.categoria === 'acompanhamentos')) notas.push('Acompanhamentos: 100 g por pessoa de cada um.');
     if (escolhidos.some((i) => i.tipo === 'kg')) notas.push(`Itens por quilo arredondados para cima, de ${dec.format(passo({ tipo: 'kg' }))} em ${dec.format(passo({ tipo: 'kg' }))} kg.`);
     notas.push('Valores estimados. O valor final é confirmado pelo WhatsApp.');
     return { linhas, total: round2(linhas.reduce((s, l) => s + l.subtotal, 0)), notas };
@@ -175,7 +178,7 @@
   function renderApetite() {
     const wrap = $('#apetite');
     wrap.innerHTML = Object.entries(C.calculadora.apetite).map(([k, v]) => `
-      <label><input type="radio" name="apetite" value="${k}" ${state.apetite === k ? 'checked' : ''}><span>${esc(v.nome)}</span></label>`).join('');
+      <label><input type="radio" name="apetite" value="${k}" ${state.apetite === k ? 'checked' : ''}><span>${esc(v.nome)}<small>${v.gramas} g</small></span></label>`).join('');
     wrap.addEventListener('change', (e) => { state.apetite = e.target.value; renderResult(); save(); });
   }
 
