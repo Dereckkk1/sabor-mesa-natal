@@ -116,8 +116,9 @@
     const notas = [];
     if (!escolhidos.length) return { linhas: [], total: 0, notas };
 
+    // Carnes e massas têm cada uma a sua porção (não se dividem entre si)
     const ehPrincipal = (i) => (k.principal || []).includes(i.categoria);
-    const principais = escolhidos.filter(ehPrincipal);
+    const naCategoria = (cat) => escolhidos.filter((i) => i.categoria === cat).length;
     const porGrupo = {};
     escolhidos.forEach((i) => { (porGrupo[i.grupo] ||= []).push(i); });
     const kgPara = (gramas, i) => {
@@ -128,8 +129,8 @@
     const linhas = escolhidos.map((i) => {
       let qtd;
       if (ehPrincipal(i)) {
-        // Carnes + massas: porção principal dividida igualmente entre todas as escolhidas
-        const gramas = (P * gPrincipal) / principais.length;
+        // Ex.: 2 carnes + 1 massa → 350 g divididos entre as 2 carnes, e mais 350 g de massa
+        const gramas = (P * gPrincipal) / naCategoria(i.categoria);
         qtd = i.tipo === 'kg' ? kgPara(gramas, i) : Math.max(1, Math.ceil(gramas / i.rendeG - 1e-9));
       } else {
         const pessoas = P / porGrupo[i.grupo].length;
@@ -139,10 +140,13 @@
       return { item: i, qtd, subtotal: round2(qtd * i.preco) };
     });
 
-    if (principais.length) {
-      const nome = k.apetite[state.apetite].nome.toLowerCase();
-      notas.push(`Carnes e massas: ${gPrincipal} g por pessoa (apetite ${nome}), divididos entre ${principais.length === 1 ? 'o prato escolhido' : `os ${principais.length} pratos escolhidos`}.`);
-    }
+    const nomeApetite = k.apetite[state.apetite].nome.toLowerCase();
+    (k.principal || []).forEach((cat) => {
+      const n = naCategoria(cat);
+      if (!n) return;
+      const rotulo = CATS[cat].nome;
+      notas.push(`${rotulo}: ${gPrincipal} g por pessoa (apetite ${nomeApetite})${n > 1 ? `, divididos entre as ${n} opções` : ''}.`);
+    });
     if (escolhidos.some((i) => i.categoria === 'acompanhamentos')) notas.push('Acompanhamentos: 100 g por pessoa de cada um.');
     if (escolhidos.some((i) => i.tipo !== 'kg')) notas.push('Itens vendidos por unidade ou pote são arredondados para cima.');
     notas.push('Valores estimados. O valor final é confirmado pelo WhatsApp.');
