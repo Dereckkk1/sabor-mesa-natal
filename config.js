@@ -61,7 +61,9 @@ window.SABOR = {
     adultosPadrao: 4,
     criancasPadrao: 0,
     pesoCrianca: 0.5,
-    passoKg: 0.5, // itens por kg são arredondados para cima de 0,5 em 0,5 kg
+    // Itens por kg: a calculadora usa o grama exato (sem arredondar).
+    passoKgPedido: 0.1, // botões +/− no pedido mudam de 100 em 100 g
+    kgInicial: 0.5, // ao adicionar um item por kg no pedido, entra com 500 g
     principal: ['carnes', 'massas'], // categorias que dividem a porção principal
     apetite: {
       leve: { nome: 'Leve', gramas: 250 },

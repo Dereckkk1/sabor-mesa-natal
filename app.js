@@ -6,7 +6,6 @@
   const $ = (s, el = document) => el.querySelector(s);
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const brl = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-  const dec = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 2 });
   const money = (v) => brl.format(v);
   const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const round2 = (n) => Math.round(n * 100) / 100;
@@ -24,10 +23,14 @@
     });
   });
 
-  const passo = (item) => (item.tipo === 'kg' ? C.calculadora.passoKg || 0.5 : 1);
+  const round3 = (n) => Math.round(n * 1000) / 1000;
+  // Passo dos botões +/− no pedido (kg) e quanto entra ao adicionar um item por kg
+  const passo = (item) => (item.tipo === 'kg' ? C.calculadora.passoKgPedido || 0.1 : 1);
+  const qtdInicial = (item) => (item.tipo === 'kg' ? C.calculadora.kgInicial || 0.5 : 1);
+  const fmtKg = (q) => (q < 1 ? `${Math.round(q * 1000)} g` : `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 3 }).format(q)} kg`);
 
   function fmtQtd(item, q) {
-    if (item.tipo === 'kg') return `${dec.format(q)} kg`;
+    if (item.tipo === 'kg') return fmtKg(q);
     if (item.tipo === 'pacote') {
       const [um, varios] = item.embNome || ['pote', 'potes'];
       return `${q} ${q === 1 ? um : varios} de ${item.emb}`;
@@ -118,8 +121,8 @@
     const porGrupo = {};
     escolhidos.forEach((i) => { (porGrupo[i.grupo] ||= []).push(i); });
     const kgPara = (gramas, i) => {
-      const st = passo(i);
-      return round2(Math.max(st, Math.ceil(gramas / 1000 / st - 1e-9) * st));
+      // Grama exato, sem arredondar: 250 g de um item de R$ 100/kg = R$ 25
+      return Math.max(0.001, round3(gramas / 1000));
     };
 
     const linhas = escolhidos.map((i) => {
@@ -141,7 +144,7 @@
       notas.push(`Carnes e massas: ${gPrincipal} g por pessoa (apetite ${nome}), divididos entre ${principais.length === 1 ? 'o prato escolhido' : `os ${principais.length} pratos escolhidos`}.`);
     }
     if (escolhidos.some((i) => i.categoria === 'acompanhamentos')) notas.push('Acompanhamentos: 100 g por pessoa de cada um.');
-    if (escolhidos.some((i) => i.tipo === 'kg')) notas.push(`Itens por quilo arredondados para cima, de ${dec.format(passo({ tipo: 'kg' }))} em ${dec.format(passo({ tipo: 'kg' }))} kg.`);
+    if (escolhidos.some((i) => i.tipo !== 'kg')) notas.push('Itens vendidos por unidade ou pote são arredondados para cima.');
     notas.push('Valores estimados. O valor final é confirmado pelo WhatsApp.');
     return { linhas, total: round2(linhas.reduce((s, l) => s + l.subtotal, 0)), notas };
   }
@@ -248,7 +251,7 @@
       const id = e.target.value;
       if (!id) return;
       const item = BY_ID[id];
-      state.cart.set(id, round2((state.cart.get(id) || 0) + passo(item)));
+      state.cart.set(id, round3((state.cart.get(id) || 0) + qtdInicial(item)));
       e.target.value = '';
       renderCart();
       save();
@@ -268,7 +271,7 @@
           <div class="cart__ctrl">
             <div class="stepper stepper--sm">
               <button type="button" data-dir="-1" aria-label="Diminuir ${esc(l.item.nome)}">−</button>
-              <output>${esc(l.item.tipo === 'kg' ? `${dec.format(l.qtd)} kg` : l.qtd)}</output>
+              <output>${esc(l.item.tipo === 'kg' ? fmtKg(l.qtd) : l.qtd)}</output>
               <button type="button" data-dir="1" aria-label="Aumentar ${esc(l.item.nome)}">+</button>
             </div>
             <span class="cart__sub">${money(l.subtotal)}</span>
@@ -292,7 +295,7 @@
       } else {
         const b = e.target.closest('button[data-dir]');
         if (!b) return;
-        const q = round2((state.cart.get(id) || 0) + +b.dataset.dir * passo(item));
+        const q = round3((state.cart.get(id) || 0) + +b.dataset.dir * passo(item));
         if (q <= 0) state.cart.delete(id); else state.cart.set(id, q);
       }
       renderCart();
