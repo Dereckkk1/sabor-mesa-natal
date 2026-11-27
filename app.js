@@ -111,7 +111,7 @@
   function calcular() {
     const k = C.calculadora;
     const P = state.adultos + state.criancas * k.pesoCrianca;
-    const gPrincipal = k.apetite[state.apetite].gramas;
+    const gramasApetite = k.apetite[state.apetite].gramas;
     const escolhidos = ITEMS.filter((i) => state.picks.has(i.id));
     const notas = [];
     if (!escolhidos.length) return { linhas: [], total: 0, notas };
@@ -130,7 +130,7 @@
       let qtd;
       if (ehPrincipal(i)) {
         // Ex.: 2 carnes + 1 massa → 350 g divididos entre as 2 carnes, e mais 350 g de massa
-        const gramas = (P * gPrincipal) / naCategoria(i.categoria);
+        const gramas = (P * gramasApetite[i.categoria]) / naCategoria(i.categoria);
         qtd = i.tipo === 'kg' ? kgPara(gramas, i) : Math.max(1, Math.ceil(gramas / i.rendeG - 1e-9));
       } else {
         const pessoas = P / porGrupo[i.grupo].length;
@@ -140,12 +140,11 @@
       return { item: i, qtd, subtotal: round2(qtd * i.preco) };
     });
 
-    const nomeApetite = k.apetite[state.apetite].nome.toLowerCase();
     (k.principal || []).forEach((cat) => {
       const n = naCategoria(cat);
       if (!n) return;
       const rotulo = CATS[cat].nome;
-      notas.push(`${rotulo}: ${gPrincipal} g por pessoa (apetite ${nomeApetite})${n > 1 ? `, divididos entre as ${n} opções` : ''}.`);
+      notas.push(`${rotulo}: ${gramasApetite[cat]} g por pessoa${n > 1 ? `, divididos entre as ${n} opções` : ''}.`);
     });
     if (escolhidos.some((i) => i.categoria === 'acompanhamentos')) notas.push('Acompanhamentos: 100 g por pessoa de cada um.');
     if (escolhidos.some((i) => i.tipo !== 'kg')) notas.push('Itens vendidos por unidade ou pote são arredondados para cima.');
@@ -185,7 +184,7 @@
   function renderApetite() {
     const wrap = $('#apetite');
     wrap.innerHTML = Object.entries(C.calculadora.apetite).map(([k, v]) => `
-      <label><input type="radio" name="apetite" value="${k}" ${state.apetite === k ? 'checked' : ''}><span>${esc(v.nome)}<small>${v.gramas} g</small></span></label>`).join('');
+      <label><input type="radio" name="apetite" value="${k}" ${state.apetite === k ? 'checked' : ''}><span>${esc(v.nome)}<small>carne ${v.gramas.carnes} g</small><small>massa ${v.gramas.massas} g</small></span></label>`).join('');
     wrap.addEventListener('change', (e) => { state.apetite = e.target.value; renderResult(); save(); });
   }
 

@@ -49,9 +49,8 @@ window.SABOR = {
   /* ------------------------------------------------------------------------
      Regras da calculadora (passadas pela Sabor à Mesa)
      - CARNES e MASSAS: cada uma tem a sua porção por pessoa, conforme o apetite
-       (leve 250 g · normal 350 g · bastante 500 g). Várias carnes dividem
-       a porção de carne; várias massas dividem a de massa. Carne não divide
-       com massa: 1 carne + 1 massa = 350 g de cada.
+       (gramas em `apetite` abaixo). Várias carnes dividem a porção de carne;
+       várias massas dividem a de massa. Carne não divide com massa.
        Itens vendidos por unidade usam `rendeG` = quantos gramas de porção
        1 unidade rende.
      - ACOMPANHAMENTOS: 100 g por pessoa de cada acompanhamento escolhido.
@@ -66,10 +65,11 @@ window.SABOR = {
     passoKgPedido: 0.1, // botões +/− no pedido mudam de 100 em 100 g
     kgInicial: 0.5, // ao adicionar um item por kg no pedido, entra com 500 g
     principal: ['carnes', 'massas'], // cada categoria tem a sua porção pelo apetite
+    // Gramas por pessoa de carne e de massa em cada opção de apetite
     apetite: {
-      leve: { nome: 'Leve', gramas: 250 },
-      normal: { nome: 'Normal', gramas: 350 },
-      farto: { nome: 'Bastante', gramas: 500 },
+      leve: { nome: 'Pouco', gramas: { carnes: 200, massas: 100 } },
+      normal: { nome: 'Normal', gramas: { carnes: 300, massas: 150 } },
+      farto: { nome: 'Muito', gramas: { carnes: 400, massas: 200 } },
     },
   },
 
@@ -85,7 +85,7 @@ window.SABOR = {
     },
     {
       id: 'carnes', nome: 'Carnes', icone: 'cloche', grupo: 'carnes',
-      dica: '350 g por pessoa no apetite normal, divididos entre as carnes escolhidas.',
+      dica: 'Porção de carne por pessoa, dividida entre as carnes escolhidas.',
       itens: [
         { id: 'chester', nome: 'Chester Recheado e Decorado', preco: 365, tipo: 'un', rendeG: 3500 },
         { id: 'peru', nome: 'Peru Recheado e Decorado', preco: 145, tipo: 'kg', obs: 'Peru é peça inteira: o peso final depende da ave.' },
@@ -115,7 +115,7 @@ window.SABOR = {
     },
     {
       id: 'massas', nome: 'Massas', icone: 'cloche', grupo: 'massas',
-      dica: '350 g por pessoa no apetite normal, além da carne. Divididos entre as massas escolhidas.',
+      dica: 'Porção de massa por pessoa, separada da carne e dividida entre as massas escolhidas.',
       itens: [
         { id: 'espaguete', nome: 'Espaguete', preco: 40, tipo: 'kg' },
         { id: 'penne', nome: 'Penne', preco: 40, tipo: 'kg' },

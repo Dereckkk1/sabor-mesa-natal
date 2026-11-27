@@ -177,8 +177,9 @@ small { font-size: .8em; font-weight: 500; opacity: .8; }
   border-radius: 999px; font-size: 14px; font-weight: 700; color: var(--ink-2); cursor: pointer; text-align: center; line-height: 1.1;
   transition: background .15s ease, color .15s ease;
 }
-.segmented span { flex-direction: column; min-height: 44px; }
-.segmented span small { font-size: 11px; font-weight: 600; opacity: .75; }
+.segmented { border-radius: 16px; }
+.segmented span { flex-direction: column; min-height: 44px; padding: 7px 8px; border-radius: 12px; gap: 1px; }
+.segmented span small { font-size: 11px; font-weight: 600; opacity: .75; line-height: 1.2; }
 .segmented input:checked + span { background: var(--red); color: #fff; }
 .segmented input:focus-visible + span { outline: 2px solid var(--gold-600); outline-offset: 2px; }
 
